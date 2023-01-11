@@ -49,7 +49,7 @@ func storeSignupInfo() {
 	fmt.Printf("\n")
 	fmt.Println("User Authentication System ")
 	fmt.Printf("\n\n")
-	id := 0
+	//id := 0
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Username: ")
 	username, _ := reader.ReadString('\n')
@@ -60,27 +60,31 @@ func storeSignupInfo() {
 	reader2 := bufio.NewReader(os.Stdin)
 	fmt.Printf("Password: ")
 	password1, _ := reader2.ReadString('\n')
-	var text int
 
-	//encrypting a key
-	var b = make([]string, len(password1))
-	for i := 0; i < len(username); i++ {
-		if int(password1[i]) >= 97 && int(password1[i]) <= 122 {
-			text = int(password1[i]) + 3
-			if text > 122 {
-				a := text - 122
-				text = 96 + a
-				b[i] = string(text)
+	//Encrypting a password
+
+	var letterStorage []string
+	var e string
+	for _, letter := range password1 {
+		a := int(letter)
+		if a >= 97 && a <= 122 {
+			b := int(letter) + 3
+			if b > 122 {
+				c := b - 122
+				b = 96 + c
+				e = string(b)
 			}
-			b[i] = string(text)
+			e = string(b)
 		} else {
-			text = int(password1[i])
-			b[i] = string(text)
+			b := int(letter)
+			e = string(b)
 		}
+		letterStorage = append(letterStorage, string(e))
 	}
-	password := strings.Join(b, "")
-	_, err := dbm.Exec(`insert into logininfo (id,username,email,password) value (?,?,?,?)`,
-		id, username, email, password)
+	password := strings.Join(letterStorage, "")
+
+	_, err := dbm.Exec(`insert into logininfo (username,email,password) value (?,?,?)`,
+		username, email, password)
 
 	if err != nil {
 		log.Fatal(err)
@@ -120,42 +124,39 @@ A:
 			fmt.Printf("Password: ")
 			password1, _ := reader1.ReadString('\n')
 
-			var text int
-
-			//encrypting a key
-			var b = make([]string, len(password1))
-			for i := 0; i < len(username); i++ {
-				if int(password1[i]) >= 97 && int(password1[i]) <= 122 {
-					text = int(password1[i]) + 3
-					if text > 122 {
-						a := text - 122
-						text = 96 + a
-						b[i] = string(text)
+			// Encrypting the password
+			var letterStorage []string
+			var e string
+			for _, letter := range password1 {
+				a := int(letter)
+				if a >= 97 && a <= 122 {
+					b := int(letter) + 3
+					if b > 122 {
+						c := b - 122
+						b = 96 + c
+						e = string(b)
 					}
-					b[i] = string(text)
+					e = string(b)
 				} else {
-					text = int(username[i])
-					b[i] = string(text)
+					b := int(letter)
+					e = string(b)
 				}
+				letterStorage = append(letterStorage, string(e))
 			}
-			password := strings.Join(b, "")
-			if username == s.username && password == s.password {
+			password := strings.Join(letterStorage, "")
+
+			if username == s.username && password == s.password || username == s.email && password == s.password {
 				fmt.Println("Sign in Successful!!! ")
 				time.Sleep(5 * time.Second)
 				menu()
 
-			} else if username != s.email {
+			} else if username != s.email && username != s.username {
 				fmt.Println("The Username is not registered!!")
 				time.Sleep(1 * time.Second)
 				clearScreen()
-				signin()
-			} else if username == s.email && password == s.password {
-				fmt.Println("Sign in Successful!!! ")
-				time.Sleep(5 * time.Second)
 				menu()
-
-			} else {
-				fmt.Println("Invalid Username and Password!!")
+			} else if username == s.email && password != s.password || username == s.username && password != s.password {
+				fmt.Println("Invalid Password!! ")
 				time.Sleep(1 * time.Second)
 				clearScreen()
 				goto A
