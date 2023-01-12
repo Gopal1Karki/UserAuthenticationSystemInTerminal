@@ -126,7 +126,7 @@ A:
 				reader1 := bufio.NewReader(os.Stdin)
 				fmt.Printf("Password: ")
 				password1, _ := reader1.ReadString('\n')
-
+				//decrypting key from database
 				pass := s.password
 				var pass1 []string
 				var e string
