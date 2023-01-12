@@ -101,6 +101,7 @@ func storeSignupInfo() {
 
 func signin() {
 A:
+	clearScreen()
 	type logininfo struct {
 		id       int
 		username string
@@ -108,63 +109,62 @@ A:
 		password string
 	}
 	var s logininfo
+	fmt.Printf("\n")
+	fmt.Println("User Authentication System")
+	fmt.Printf("\n\n")
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("Username / Email: ")
+	username, _ := reader.ReadString('\n')
 	row, err := dbm.Query(`select * from logininfo`)
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		for row.Next() {
 			row.Scan(&s.id, &s.username, &s.email, &s.password)
-			fmt.Printf("\n")
-			fmt.Println("User Authentication System")
-			fmt.Printf("\n\n")
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Printf("Username / Email: ")
-			username, _ := reader.ReadString('\n')
-			reader1 := bufio.NewReader(os.Stdin)
-			fmt.Printf("Password: ")
-			password1, _ := reader1.ReadString('\n')
+			if username == s.username || username == s.email {
 
-			// Encrypting the password
-			var letterStorage []string
-			var e string
-			for _, letter := range password1 {
-				a := int(letter)
-				if a >= 97 && a <= 122 {
-					b := int(letter) + 3
-					if b > 122 {
-						c := b - 122
-						b = 96 + c
-						e = string(b)
+				reader1 := bufio.NewReader(os.Stdin)
+				fmt.Printf("Password: ")
+				password1, _ := reader1.ReadString('\n')
+
+				pass := s.password
+				var pass1 []string
+				var e string
+				for _, letter := range pass {
+					n := int(letter)
+					if n >= 97 && n <= 122 {
+						o := n - 3
+						if o < 97 {
+							p := 97 - o
+							o = 123 - p
+							e = string(o)
+						}
+						e = string(o)
+					} else {
+						o := int(letter)
+						e = string(o)
 					}
-					e = string(b)
-				} else {
-					b := int(letter)
-					e = string(b)
+					pass1 = append(pass1, string(e))
 				}
-				letterStorage = append(letterStorage, string(e))
-			}
-			password := strings.Join(letterStorage, "")
-
-			if username == s.username && password == s.password || username == s.email && password == s.password {
-				fmt.Println("Sign in Successful!!! ")
-				time.Sleep(5 * time.Second)
-				menu()
-
-			} else if username != s.email && username != s.username {
-				fmt.Println("The Username is not registered!!")
-				time.Sleep(1 * time.Second)
-				clearScreen()
-				menu()
-			} else if username == s.email && password != s.password || username == s.username && password != s.password {
-				fmt.Println("Invalid Password!! ")
-				time.Sleep(1 * time.Second)
-				clearScreen()
-				goto A
+				password2 := strings.Join(pass1, "")
+				if password1 == password2 {
+					fmt.Println("Sigin  sucessfull !!")
+					time.Sleep(1 * time.Second)
+					clearScreen()
+					menu()
+				} else {
+					fmt.Println("Invalid Password")
+					time.Sleep(1 * time.Second)
+					clearScreen()
+					goto A
+				}
 			}
 
 		}
 	}
-
+	fmt.Println("The Username or Email is not registered!!")
+	time.Sleep(1 * time.Second)
+	goto A
 }
 
 // clearing the screen
